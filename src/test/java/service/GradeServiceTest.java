@@ -7,9 +7,12 @@ import enums.UserTypes;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
+import org.mockito.Mockito;
 import security.Session;
 
 import java.util.List;
+
+import static org.mockito.Mockito.when;
 
 /**
  * Contains methods for testing the functionality in GradeService
@@ -21,6 +24,7 @@ public class GradeServiceTest {
     private Student student;
     private Subject subject;
     private Session session;
+    private Session mockedSession;
 
     /**
      * Method, executed once, used for configuring the environment and setting up object instances before test executions
@@ -32,11 +36,22 @@ public class GradeServiceTest {
 
         session = new Session();
         session.setLoggedUserType(UserTypes.TEACHER);
+        mockedSession = Mockito.mock(Session.class);
+        when(mockedSession.getLoggedUserType()).thenReturn(UserTypes.TEACHER);
     }
 
     @Test
     public void testCreateAndGetGradeForStudent() throws IllegalAccessException {
         Grade grade = gradeService.createGrade(student, subject, 2, session);
+
+        Assert.assertEquals(student, grade.getStudent());
+        Assert.assertEquals(subject, grade.getSubject());
+        Assert.assertEquals(Integer.valueOf(2), grade.getMark());
+    }
+
+    @Test
+    public void testCreateAndGetGradeForStudentWithMockedSession() throws IllegalAccessException {
+        Grade grade = gradeService.createGrade(student, subject, 2, mockedSession);
 
         Assert.assertEquals(student, grade.getStudent());
         Assert.assertEquals(subject, grade.getSubject());
